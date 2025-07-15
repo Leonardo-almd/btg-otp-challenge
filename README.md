@@ -21,78 +21,78 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# BTG OTP Challenge
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API REST para gerenciamento de tokens OTP (One-Time Password) desenvolvida com NestJS e Arquitetura Hexagonal.
 
-## Project setup
+## Descrição
 
-```bash
-$ npm install
+Este projeto implementa uma API para criar e validar tokens OTP, seguindo os princípios da Arquitetura Hexagonal (também conhecida como Ports and Adapters).
+
+## Estrutura do Projeto
+
+A estrutura do projeto segue os princípios da Arquitetura Hexagonal:
+
+```
+src/
+  modules/
+    otp/
+      application/
+        ports/           # Interfaces (portas) para adaptadores externos
+        use-cases/       # Casos de uso da aplicação
+      domain/
+        entities/        # Entidades de domínio
+        services/        # Serviços de domínio
+      infrastructure/
+        adapters/        # Adaptadores para serviços externos
+        controllers/     # Controladores HTTP
+        repositories/    # Implementações de repositórios
 ```
 
-## Compile and run the project
+## Funcionalidades Implementadas
 
-```bash
-# development
-$ npm run start
+- [x] Criação de token OTP
+- [ ] Validação de token OTP
 
-# watch mode
-$ npm run start:dev
+## Endpoints
 
-# production mode
-$ npm run start:prod
+### 1. Criar token OTP
+
+```
+POST /otp
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+**Corpo da requisição:**
+```json
+{
+  "userId": "string"
+}
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+**Resposta:**
+```json
+{
+  "token": "string",
+  "expiresAt": "date"
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Como executar
 
-## Resources
+1. Instale as dependências:
+```bash
+npm install
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+2. Execute a aplicação:
+```bash
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+3. A API estará disponível em `http://localhost:3000`
 
-## Support
+## Tecnologias utilizadas
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- NestJS
+- TypeScript
+- Arquitetura Hexagonal
