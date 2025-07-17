@@ -1,98 +1,187 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# API de Tokens OTP (One-Time Password)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto implementa uma API REST para gerenciamento de tokens OTP (senhas de uso único), seguindo os princípios da Arquitetura Hexagonal.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Índice
 
-## Description
+- [Visão Geral](#visão-geral)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Arquitetura](#arquitetura)
+- [Requisitos](#requisitos)
+- [Configuração do Ambiente](#configuração-do-ambiente)
+- [Executando a Aplicação](#executando-a-aplicação)
+  - [Com Docker](#com-docker)
+  - [Localmente](#localmente)
+- [Testes](#testes)
+- [Decisões Técnicas](#decisões-técnicas)
+- [Considerações de Segurança](#considerações-de-segurança)
+- [Escalabilidade](#escalabilidade)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Visão Geral
 
-## Project setup
+Esta API permite a criação e validação de tokens OTP (One-Time Password), que são senhas numéricas de uso único, geralmente utilizadas como segundo fator de autenticação ou para confirmar operações sensíveis.
+
+## Tecnologias Utilizadas
+
+- **Node.js**: Ambiente de execução
+- **TypeScript**: Linguagem de programação
+- **NestJS**: Framework para construção de aplicações escaláveis
+- **Redis**: Banco de dados NoSQL para armazenamento de tokens
+- **Docker**: Containerização
+- **Jest**: Framework de testes
+- **Swagger/OpenAPI**: Documentação da API
+- **bcrypt**: Biblioteca para hashing seguro
+
+## Arquitetura
+
+O projeto segue os princípios da Arquitetura Hexagonal (também conhecida como Ports and Adapters), que promove a separação de responsabilidades e a independência do domínio em relação a tecnologias externas.
+
+### Estrutura de Diretórios
+src/
+├── common/ # Componentes compartilhados
+├── config/ # Configurações da aplicação
+├── token-otp/ # Módulo principal
+│ ├── adapters/ # Adaptadores (controllers, repositories)
+│ │ ├── controllers/ # Controladores da API
+│ │ ├── infrastructure/ # Implementações de infraestrutura
+│ │ ├── model/ # DTOs e mapeadores
+│ │ ├── repositories/ # Implementações de repositórios
+│ │ └── services/ # Serviços de adaptadores
+│ ├── domain/ # Lógica de domínio
+│ │ ├── model/ # Entidades de domínio
+│ │ └── ports/ # Portas (interfaces)
+│ │     ├── input/ # Portas de entrada
+│ │     └── output/ # Portas de saída
+│ └── token-otp.module.ts # Módulo NestJS
+└── main.ts # Ponto de entrada da aplicação
+
+
+## Requisitos
+
+- Node.js 18+
+- Docker e Docker Compose (opcional, para execução containerizada)
+- Redis (instalado localmente ou via Docker)
+
+## Configuração do Ambiente
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/Leonardo-almd/btg-otp-challenge
+   cd btg-otp-challenge
+   ```
+
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+3. Configure as variáveis de ambiente:
+   - Crie um arquivo `.env` baseado no `env-example.txt`:
+   ```bash
+   cp env-example.txt .env
+   ```
+   - Ajuste as variáveis conforme necessário:
+   ```
+   PORT=3000
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   THROTTLE_TTL=5000
+   THROTTLE_LIMIT=3
+   ```
+
+## Executando a Aplicação
+
+### Com Docker
+
+1. Construa e inicie os containers:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. A API estará disponível em `http://localhost:3000/api`
+3. A documentação Swagger estará disponível em `http://localhost:3000/api/docs`
+
+### Localmente
+
+1. Certifique-se de que o Redis está em execução:
+   ```bash
+   redis-server
+   ```
+
+2. Inicie a aplicação:
+   ```bash
+   npm run start:dev
+   ```
+
+3. A API estará disponível em `http://localhost:3000/api`
+4. A documentação Swagger estará disponível em `http://localhost:3000/api/docs`
+
+## Testes
+
+O projeto inclui testes unitários e end-to-end (e2e):
 
 ```bash
-$ npm install
+# Executar todos os testes unitários
+npm test
+
+# Executar testes com watch mode
+npm run test:watch
+
+# Executar testes com cobertura
+npm run test:cov
+
+# Executar testes e2e
+npm run test:e2e
 ```
 
-## Compile and run the project
+## Decisões Técnicas
 
-```bash
-# development
-$ npm run start
+### Arquitetura Hexagonal
 
-# watch mode
-$ npm run start:dev
+Optamos pela Arquitetura Hexagonal para:
+- Isolar o domínio da aplicação de detalhes de infraestrutura
+- Facilitar a testabilidade através da inversão de dependências
+- Permitir a substituição de componentes externos (como o banco de dados) com impacto mínimo
 
-# production mode
-$ npm run start:prod
-```
+### Redis como Banco de Dados
 
-## Run tests
+Escolhemos o Redis pelos seguintes motivos:
+- Performance: Operações extremamente rápidas, essenciais para autenticação
+- TTL nativo: Suporte integrado para expiração de chaves, ideal para tokens temporários
+- Simplicidade: Fácil configuração e uso para o caso específico de tokens OTP
 
-```bash
-# unit tests
-$ npm run test
 
-# e2e tests
-$ npm run test:e2e
+## Considerações de Segurança
 
-# test coverage
-$ npm run test:cov
-```
+- Os tokens OTP são armazenados em formato hash no Redis
+- Implementamos rate limiting para prevenir ataques de força bruta
+- Validação rigorosa de todas as entradas para prevenir injeções
+- Logs estruturados sem informações sensíveis
 
-## Deployment
+## Escalabilidade
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+O projeto foi projetado considerando escalabilidade em vários níveis:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **Infraestrutura distribuída com Docker Compose**:
+  - Separação clara entre serviços (API, Redis, Nginx)
+  - Configuração de rede isolada para comunicação entre serviços
+  - Possibilidade de escalar cada serviço independentemente
+  - Facilidade para adicionar novos serviços ou réplicas conforme necessário
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+- **Benefícios da Arquitetura Hexagonal para escalabilidade**:
+  - Desacoplamento entre domínio e infraestrutura facilita a distribuição de componentes
+  - Interfaces bem definidas permitem substituir implementações por versões mais escaláveis
+  - Separação clara de responsabilidades facilita a identificação de gargalos
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- **Tecnologias escaláveis**:
+  - **Redis** com suporte a clustering para alta disponibilidade e particionamento de dados
+  - **Proxy reverso com Nginx** para balanceamento de carga e terminação SSL
+  - **NestJS** com suporte a processamento assíncrono e não-bloqueante
 
-## Resources
+- **Práticas de DevOps**:
+  - Containerização com Docker para facilitar o deployment em ambientes de nuvem
+  - Configurações externalizadas via variáveis de ambiente
+  - Monitoramento de performance através de logs estruturados
 
-Check out a few resources that may come in handy when working with NestJS:
+Esta abordagem de infraestrutura distribuída, combinada com os princípios da arquitetura hexagonal, proporciona uma base sólida para o crescimento da aplicação, permitindo escalar horizontalmente (adicionando mais instâncias) ou verticalmente (aumentando recursos) conforme a demanda.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
