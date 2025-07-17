@@ -48,6 +48,22 @@ export class TokenOtp {
     return this.isValid && new Date() < this.expiresAt;
   }
 
+  public validateToken(
+    hashingService: TokenHashingPort,
+    tokenToValidate: string
+  ): { isValid: boolean; message: string } {
+    if (!this.isTokenValid()) {
+      return {
+        isValid: false,
+        message: 'Token expirado ou inválido.'
+      };
+    }
+
+    const isMatch = hashingService.verifyToken(tokenToValidate, this.tokenHashed);
+
+    return isMatch ? { isValid: true, message: 'Token válido.' } : { isValid: false, message: 'Token inválido.' };
+  }
+
   public static create(
     hashingService: TokenHashingPort,
     userId: string,

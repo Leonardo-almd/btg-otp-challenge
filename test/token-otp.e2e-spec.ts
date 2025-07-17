@@ -19,9 +19,16 @@ describe('TokenOtpController (e2e)', () => {
     let app: INestApplication;
     let redisService: RedisService;
 
+    let redisStore = {};
+
     const mockRedisClient = {
-        set: jest.fn().mockImplementation(() => Promise.resolve('OK')),
-        get: jest.fn(),
+        set: jest.fn().mockImplementation((key, value, options) => {
+            redisStore[key] = value;
+            return Promise.resolve('OK');
+          }),
+          get: jest.fn().mockImplementation((key) => {
+            return Promise.resolve(redisStore[key] || null);
+          }),
         del: jest.fn(),
         quit: jest.fn().mockImplementation(() => Promise.resolve()),
         duplicate: jest.fn().mockReturnValue({
@@ -36,6 +43,8 @@ describe('TokenOtpController (e2e)', () => {
     };
 
     beforeEach(async () => {
+        redisStore = {};
+
         jest.clearAllMocks();
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -258,4 +267,66 @@ describe('TokenOtpController (e2e)', () => {
                 });
         });
     });
+
+    describe('/token-otp/validate (POST)', () => {
+        const userId = '123456';
+      
+        it('deve validar um token OTP válido e retornar 200', async () => {
+          const createRes = await request(app.getHttpServer())
+            .post('/api/token-otp')
+            .send({ userId, expirationMinutes: 2 })
+            .expect(201);
+      
+          const createdToken = createRes.body.token;
+      
+          await request(app.getHttpServer())
+            .post('/api/token-otp/validate')
+            .send({ userId, token: createdToken })
+            .expect(200)
+            .expect((res) => {
+              expect(res.body).toHaveProperty('isValid', true);
+              expect(res.body).toHaveProperty('userId', userId);
+              expect(res.body).toHaveProperty('message');
+            });
+        });
+      
+        it('deve retornar 404 se o token não for encontrado', async () => {
+          await request(app.getHttpServer())
+            .post('/api/token-otp/validate')
+            .send({ userId: '999999', token: '000000' })
+            .expect(404)
+            .expect((res) => {
+              expect(res.body).toHaveProperty('message');
+              expect(res.body.message).toMatch(/não encontrado/i);
+            });
+        });
+      
+        it('deve retornar 401 se o token estiver inválido', async () => {
+          const createRes = await request(app.getHttpServer())
+            .post('/api/token-otp')
+            .send({ userId, expirationMinutes: 2 })
+            .expect(201);
+      
+          await request(app.getHttpServer())
+            .post('/api/token-otp/validate')
+            .send({ userId, token: '000000' }) 
+            .expect(401)
+            .expect((res) => {
+              expect(res.body).toHaveProperty('message');
+              expect(res.body.message).toMatch(/inválido|expirado/i);
+            });
+        });
+      
+        it('deve retornar 400 se faltar userId ou token', async () => {
+          await request(app.getHttpServer())
+            .post('/api/token-otp/validate')
+            .send({ token: '123456' })
+            .expect(400);
+      
+          await request(app.getHttpServer())
+            .post('/api/token-otp/validate')
+            .send({ userId }) 
+            .expect(400);
+        });
+      });
 });

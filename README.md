@@ -95,11 +95,11 @@ src/
 
 1. Construa e inicie os containers:
    ```bash
-   docker-compose up -d
+   docker compose up --build
    ```
 
-2. A API estará disponível em `http://localhost:3000/api`
-3. A documentação Swagger estará disponível em `http://localhost:3000/api/docs`
+2. A API estará disponível em `http://localhost:8080/api`
+3. A documentação Swagger estará disponível em `http://localhost:8080/api/docs`
 
 ### Localmente
 

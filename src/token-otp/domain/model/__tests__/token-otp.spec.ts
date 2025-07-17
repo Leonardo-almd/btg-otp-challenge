@@ -81,4 +81,83 @@ describe('TokenOtp', () => {
       jest.useRealTimers();
     });
   });
+
+  describe('validateToken', () => {
+    it('deve retornar true para um token correto', () => {
+      const userId = '123';
+      const originalToken = '123456';
+      const hashedToken = 'hashed_123456';
+      
+      const tokenOtp = new TokenOtp({
+        token: originalToken,
+        tokenHashed: hashedToken,
+        userId,
+        expiresAt: new Date(Date.now() + 5 * 60000),
+        isValid: true
+      });
+
+      const validationResult = tokenOtp.validateToken(mockHashingService, originalToken);
+      
+      expect(validationResult.isValid).toBe(true);
+      expect(mockHashingService.verifyToken).toHaveBeenCalledWith(originalToken, hashedToken);
+    });
+
+    it('deve retornar false para um token incorreto', () => {
+      const userId = '123';
+      const originalToken = '123456';
+      const wrongToken = '654321';
+      const hashedToken = 'hashed_123456';
+      
+      const tokenOtp = new TokenOtp({
+        token: originalToken,
+        tokenHashed: hashedToken,
+        userId,
+        expiresAt: new Date(Date.now() + 5 * 60000),
+        isValid: true
+      });
+
+      (mockHashingService.verifyToken as jest.Mock).mockReturnValueOnce(false);
+      const validationResult = tokenOtp.validateToken(mockHashingService, wrongToken);
+      
+      expect(validationResult.isValid).toBe(false);
+      expect(mockHashingService.verifyToken).toHaveBeenCalledWith(wrongToken, hashedToken);
+    });
+
+    it('deve retornar false para um token expirado', () => {
+      const userId = '123';
+      const originalToken = '123456';
+      const hashedToken = 'hashed_123456';
+      
+      const tokenOtp = new TokenOtp({
+        token: originalToken,
+        tokenHashed: hashedToken,
+        userId,
+        expiresAt: new Date(Date.now() - 5 * 60000),
+        isValid: true
+      });
+
+      const validationResult = tokenOtp.validateToken(mockHashingService, originalToken);
+      
+      expect(validationResult.isValid).toBe(false);
+    });
+
+    it('deve retornar false para um token invalidado', () => {
+      const userId = '123';
+      const originalToken = '123456';
+      const hashedToken = 'hashed_123456';
+      
+      const tokenOtp = new TokenOtp({
+        token: originalToken,
+        tokenHashed: hashedToken,
+        userId,
+        expiresAt: new Date(Date.now() + 5 * 60000),
+        isValid: false
+      });
+
+      const validationResult = tokenOtp.validateToken(mockHashingService, originalToken);
+      
+      expect(validationResult.isValid).toBe(false);
+      expect(mockHashingService.verifyToken).not.toHaveBeenCalled();
+    });
+  });
 });
