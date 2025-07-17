@@ -37,23 +37,26 @@ Esta API permite a criação e validação de tokens OTP (One-Time Password), qu
 O projeto segue os princípios da Arquitetura Hexagonal (também conhecida como Ports and Adapters), que promove a separação de responsabilidades e a independência do domínio em relação a tecnologias externas.
 
 ### Estrutura de Diretórios
+
+```
 src/
-├── common/ # Componentes compartilhados
-├── config/ # Configurações da aplicação
-├── token-otp/ # Módulo principal
-│ ├── adapters/ # Adaptadores (controllers, repositories)
-│ │ ├── controllers/ # Controladores da API
-│ │ ├── infrastructure/ # Implementações de infraestrutura
-│ │ ├── model/ # DTOs e mapeadores
-│ │ ├── repositories/ # Implementações de repositórios
-│ │ └── services/ # Serviços de adaptadores
-│ ├── domain/ # Lógica de domínio
-│ │ ├── model/ # Entidades de domínio
-│ │ └── ports/ # Portas (interfaces)
-│ │     ├── input/ # Portas de entrada
-│ │     └── output/ # Portas de saída
-│ └── token-otp.module.ts # Módulo NestJS
-└── main.ts # Ponto de entrada da aplicação
+├── common/                       # Componentes compartilhados
+├── config/                       # Configurações da aplicação
+├── token-otp/                    # Módulo principal
+│   ├── adapters/                 # Adaptadores (controllers, repositories)
+│   │   ├── controllers/          # Controladores da API
+│   │   ├── infrastructure/       # Implementações de infraestrutura
+│   │   ├── model/                # DTOs e mapeadores
+│   │   ├── repositories/         # Implementações de repositórios
+│   │   └── services/             # Serviços de adaptadores
+│   ├── domain/                   # Lógica de domínio
+│   │   ├── model/                # Entidades de domínio
+│   │   └── ports/                # Portas (interfaces)
+│   │       ├── input/            # Portas de entrada
+│   │       └── output/           # Portas de saída
+│   └── token-otp.module.ts       # Módulo NestJS
+└── main.ts                       # Ponto de entrada da aplicação
+```
 
 
 ## Requisitos
