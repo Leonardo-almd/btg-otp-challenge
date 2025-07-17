@@ -19,7 +19,7 @@ services:
       - NODE_ENV=production
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - THROTTLE_TTL=5000
+      - THROTTLE_TTL=1000
       - THROTTLE_LIMIT=1
       - PORT=3000
     depends_on:

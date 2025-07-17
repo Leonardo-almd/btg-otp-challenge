@@ -9,13 +9,7 @@ export class ThrottledResponseDto {
 
   @ApiProperty({
     description: 'Mensagem de erro',
-    example: 'Limite de requisições excedido. Tente novamente mais tarde.'
+    example: 'Limite de requisições excedido. Tente novamente em 5 segundos.'
   })
   message: string;
-
-  @ApiProperty({
-    description: 'Tempo em segundos para tentar novamente',
-    example: 30
-  })
-  retryAfter: number;
 }
